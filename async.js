@@ -8,6 +8,10 @@ exports.runParallel = runParallel;
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise((resolve, reject) => {
+        if (jobs.length === 0) {
+            resolve([]);
+        }
+        
         let result = []
         let lastJobIndex = parallelNum - 1;
 
