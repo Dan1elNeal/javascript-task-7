@@ -1,5 +1,3 @@
-'use strict';
-
 exports.isStar = true;
 exports.runParallel = runParallel;
 
@@ -9,5 +7,33 @@ exports.runParallel = runParallel;
  * @param {Number} timeout - таймаут работы промиса
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
-    // асинхронная магия
+    return new Promise((resolve, reject) => {
+        let result = []
+        let lastJobIndex = parallelNum - 1;
+
+        jobs.slice(0, parallelNum).forEach((_, index) => {
+            startJob(index);
+        });
+        
+        function startJob(jobIndex) {
+            Promise.race([
+                jobs[jobIndex](),
+                new Promise((reject) => {
+                    setTimeout(reject, timeout, new Error(`Promise timeout`));
+                })
+            ])
+                .then(jobResult => finishJob(jobResult, jobIndex));
+        }
+
+        function finishJob(jobResult, jobIndex) {
+            result[jobIndex] = jobResult;
+            if (lastJobIndex != jobs.length - 1){
+                lastJobIndex++;
+                startJob(lastJobIndex);
+            }
+            if (result.length == jobs.length) {
+                resolve(result);
+            }
+        }
+    })
 }
