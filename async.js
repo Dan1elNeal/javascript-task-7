@@ -24,16 +24,17 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
             }
         })
 
-        jobs.slice(0, parallelNum).forEach((_, index) => {
+        for (let index = 0; index < parallelNum; index++) {
             startJob(index);
-        });
+        }
         
         function startJob(jobIndex) {
             Promise.race([
                 jobsWithTimeouts[jobIndex].job(),
                 jobsWithTimeouts[jobIndex].timeoutPromise
             ])
-                .then(jobResult => finishJob(jobResult, jobIndex));
+                .then(jobResult => finishJob(jobResult, jobIndex))
+                .catch(jobResult => finishJob(jobResult, jobIndex));
         }
 
         function finishJob(jobResult, jobIndex) {
