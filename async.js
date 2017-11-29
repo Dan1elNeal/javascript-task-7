@@ -22,7 +22,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
 
         let jobsWithTimeouts = jobs.map(job => {
             return {
-                jobPromise: job(),
+                jobPromise: job,
                 timeoutPromise: new Promise((timeoutResolve, timeoutReject) => {
                     setTimeout(timeoutReject, timeout, new Error('Promise timeout'));
                 })
@@ -35,7 +35,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
 
         function startJob(jobIndex) {
             Promise.race([
-                jobsWithTimeouts[jobIndex].jobPromise,
+                jobsWithTimeouts[jobIndex].jobPromise(),
                 jobsWithTimeouts[jobIndex].timeoutPromise
             ])
                 .then(jobResult => finishJob(jobResult, jobIndex))
